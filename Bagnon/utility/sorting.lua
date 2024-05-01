@@ -132,7 +132,9 @@ function Sort:GetSpaces()
   local itemFrame = self.itemFrame
   for _, bag in itemFrame:GetVisibleBags() do
     local family = Bagnon.BagSlotInfo:GetBagType(itemFrame:GetPlayer(), bag)
-		for slot = 1, itemFrame:GetBagSize(bag) do
+	local sCount = itemFrame:GetBagSize(bag)
+		for slot = 1, sCount do
+			slot = sCount - slot + 1
 			local itemSlot = itemFrame:GetItemSlot(bag, slot)
       local texture, count, locked, quality, readable, lootable, link = itemSlot:GetItemSlotInfo()
       local item = {}
@@ -219,7 +221,7 @@ end
 function Sort.Rule(a, b)
   for _,prop in pairs(Sort.Proprieties) do
     if a[prop] ~= b[prop] then
-      return a[prop] > b[prop]
+      return a[prop] < b[prop]
     end
   end
 
