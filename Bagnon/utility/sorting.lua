@@ -18,6 +18,10 @@ Sort.Proprieties = {
 
 Sort.init = false
 
+--a runaway guard only: a sort settles in a handful of passes, so this sits far out
+--of reach of any real one and exists purely so a stuck slot cannot spin forever
+Sort.MAX_PASSES = 100
+
 function Sort:Init()
   Sort.init = true
   Sort.Classes = {}
@@ -34,7 +38,15 @@ end
 --[[ Process ]]--
 
 function Sort:Start(itemFrame)
+  --a sort already in flight would otherwise keep running against the old frame
+  self:CancelAllTimers()
+
+  self.itemFrame = itemFrame
+  self.passes = 0
+
+  --the frame has to be set first, since CanRun asks it whether it is sortable
   if not self:CanRun() then
+    self:Stop()
     return
   end
 
@@ -42,7 +54,6 @@ function Sort:Start(itemFrame)
     self:Init()
   end
 
-  self.itemFrame = itemFrame
   --self:SendMessage('SORTING_STATUS', itemFrame)
   self:Run()
 end
@@ -72,8 +83,7 @@ function Sort:Iterate()
         local other = from.item
 
         if item.id == other.id and stackable(other) then
-          self:Move(from, target)
-          updateRequired = true
+          updateRequired = self:Move(from, target) or updateRequired
         end
       end
     end
@@ -106,18 +116,18 @@ function Sort:Iterate()
           end
         end
 
-        self:Move(item.space, goal)
-        updateRequired = true
+        updateRequired = self:Move(item.space, goal) or updateRequired
       end
     end
   end
 
-  if updateRequired then
-    self:ScheduleTimer("Run", 0.05)
+  self.passes = self.passes + 1
+
+  if updateRequired and self.passes < self.MAX_PASSES then
+    self:ScheduleTimer("Run", self.itemFrame:GetSortDelay())
   else
     self:Stop()
   end
-
 end
 
 function Sort:Stop()
@@ -130,31 +140,42 @@ end
 function Sort:GetSpaces()
   local spaces = {}
   local itemFrame = self.itemFrame
-  for _, bag in itemFrame:GetVisibleBags() do
-    local family = Bagnon.BagSlotInfo:GetBagType(itemFrame:GetPlayer(), bag)
-	local sCount = itemFrame:GetBagSize(bag)
-		for slot = 1, sCount do
-			slot = sCount - slot + 1
-			local itemSlot = itemFrame:GetItemSlot(bag, slot)
-      local texture, count, locked, quality, readable, lootable, link = itemSlot:GetItemSlotInfo()
+  local reversed = itemFrame:IsSortOrderReversed()
+
+  --spaces are filled in the order they are collected here, so walking bags and
+  --slots backwards makes a sort start at the last available bag and work forward
+  for _, bag in itemFrame:GetSortableBags() do
+    local family = itemFrame:GetSortBagFamily(bag)
+    local bagSize = itemFrame:GetSortBagSize(bag)
+    local first, last, step = 1, bagSize, 1
+    if reversed then
+      first, last, step = bagSize, 1, -1
+    end
+
+    for slot = first, last, step do
+      local texture, count, locked, quality, link = itemFrame:GetSortSlotInfo(bag, slot)
       local item = {}
-      tinsert(spaces, {index = #spaces, bag = bag, slot = slot, family = family, item = item})
-      item.space = spaces[#spaces]
+      local space = {index = #spaces, bag = bag, slot = slot, family = family, item = item}
+      tinsert(spaces, space)
+      item.space = space
       if link then
         local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount = GetItemInfo(link)
         item.class = Sort.Classes[itemType] and Sort.Classes[itemType].index or 0
         item.subclass = Sort.Classes[itemType] and Sort.Classes[itemType].subClasses[itemSubType] or 0
-        item.stack = itemStackCount
-        item.count = count
+        --GetItemInfo comes back empty for items the client has not cached yet, and
+        --the sort rule compares these directly, so none of them may be left nil
+        item.stack = itemStackCount or 1
+        item.count = count or 1
         item.id =  tonumber(link:match("item:(%d+)")) or 0
         item.locked = locked
-        item.quality = quality
-        item.icon = texture
-        item.level = itemLevel
-        item.name = itemName
+        --containers that do not report quality themselves fall back to the item's own rarity
+        item.quality = quality or itemRarity or 0
+        item.icon = texture or ''
+        item.level = itemLevel or 0
+        item.name = itemName or ''
       end
-		end
-	end
+    end
+  end
   --[[
   for _, bag in pairs(self.bags) do
     local link, count, texture = bag:GetBagInfo()
@@ -207,7 +228,12 @@ function Sort:GetOrder(spaces, family)
 end
 
 function Sort:CanRun()
-  return not InCombatLockdown() and not UnitIsDead('player')
+  if InCombatLockdown() or UnitIsDead('player') then
+    return false
+  end
+
+  local itemFrame = self.itemFrame
+  return (itemFrame and itemFrame:CanSortItems()) and true or false
 end
 
 function Sort:FitsIn(id, family)
@@ -221,7 +247,7 @@ end
 function Sort.Rule(a, b)
   for _,prop in pairs(Sort.Proprieties) do
     if a[prop] ~= b[prop] then
-      return a[prop] < b[prop]
+      return a[prop] > b[prop]
     end
   end
 
@@ -236,9 +262,11 @@ function Sort:Move(from, to)
     return
   end
 
+  local itemFrame = self.itemFrame
+
   ClearCursor()
-  PickupContainerItem(from.bag, from.slot)
-  PickupContainerItem(to.bag, to.slot)
+  itemFrame:PickupSortItem(from.bag, from.slot)
+  itemFrame:PickupSortItem(to.bag, to.slot)
   ClearCursor()
 
   from.locked = true

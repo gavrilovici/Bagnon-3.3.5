@@ -335,6 +335,23 @@ function SavedFrameSettings:GetHiddenBags()
 end
 
 
+--[[ Frame Bags Ignored by Sorting ]]--
+
+--flag a bag as skipped by the item sorter
+function SavedFrameSettings:SetBagIgnored(bag, ignore)
+	self:GetDB().ignoredBags[bag] = ignore or nil
+end
+
+function SavedFrameSettings:IsBagIgnored(bag)
+	return self:GetDB().ignoredBags[bag] and true or false
+end
+
+--get all bags skipped by the item sorter
+function SavedFrameSettings:GetIgnoredBags()
+	return self:GetDB().ignoredBags
+end
+
+
 --[[ Item Frame Layout ]]--
 
 --columns
@@ -421,6 +438,9 @@ function SavedFrameSettings:GetDefaultInventorySettings()
 			[KEYRING_CONTAINER] = true,
 		},
 
+		--bags skipped by the item sorter
+		ignoredBags = {},
+
 		--frame
 		frameColor = {0, 0, 0, 0.5},
 		frameBorderColor = {1, 1, 1, 1},
@@ -472,6 +492,9 @@ function SavedFrameSettings:GetDefaultBankSettings()
 			[11] = false
 		},
 
+		--bags skipped by the item sorter
+		ignoredBags = {},
+
 		--frame
 		frameColor = {0, 0, 0, 0.5},
 		frameBorderColor = {1, 1, 0, 1},
@@ -514,6 +537,9 @@ function SavedFrameSettings:GetDefaultKeyRingSettings()
 		hiddenBags = {
 			[KEYRING_CONTAINER] = false
 		},
+
+		--bags skipped by the item sorter
+		ignoredBags = {},
 
 		--frame,
 		frameColor = {0, 0, 0, 0.5},

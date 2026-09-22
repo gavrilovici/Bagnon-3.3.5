@@ -41,6 +41,14 @@ function Bag:CreateBag(slotID, parent)
 	local icon = bag:CreateTexture(name .. 'IconTexture', 'BORDER')
 	icon:SetAllPoints(bag)
 
+	--dims the bag while it is excluded from sorting
+	--created before the count so the count still draws on top of it
+	local ignored = bag:CreateTexture(nil, 'OVERLAY')
+	ignored:SetTexture(0, 0, 0, 0.6)
+	ignored:SetAllPoints(bag)
+	ignored:Hide()
+	bag.ignoredOverlay = ignored
+
 	local count = bag:CreateFontString(name .. 'Count', 'OVERLAY')
 	count:SetFontObject('NumberFontNormalSmall')
 	count:SetJustifyH('RIGHT')
@@ -111,6 +119,7 @@ function Bag:UpdateEvents()
 	if self:IsVisible() then
 		self:RegisterMessage('BAG_SLOT_SHOW')
 		self:RegisterMessage('BAG_SLOT_HIDE')
+		self:RegisterMessage('BAG_SLOT_IGNORE_UPDATE')
 
 		if self:IsBagSlot() then
 			self:RegisterMessage('PLAYER_UPDATE')
@@ -190,6 +199,12 @@ function Bag:BAG_SLOT_HIDE(msg, frameID, slotID)
 	end
 end
 
+function Bag:BAG_SLOT_IGNORE_UPDATE(msg, frameID, slotID)
+	if frameID == self:GetFrameID() and slotID == self:GetID() then
+		self:UpdateIgnored()
+	end
+end
+
 function Bag:PLAYER_UPDATE(msg, frameID, player)
 	if frameID == self:GetFrameID() then
 		self:Update()
@@ -207,8 +222,10 @@ function Bag:OnHide()
 	self:UpdateEvents()
 end
 
-function Bag:OnClick()
-	if self:IsPurchasable() and not self:IsCached() then
+function Bag:OnClick(button)
+	if button == 'RightButton' and self:CanIgnoreSlot() and not CursorHasItem() then
+		self:ToggleIgnoreSlot()
+	elseif self:IsPurchasable() and not self:IsCached() then
 		self:PurchaseSlot()
 	elseif CursorHasItem() and not self:IsCached() then
 		if self:IsBackpack() then
@@ -272,6 +289,10 @@ function Bag:UpdateTooltip()
 		GameTooltip:AddLine(self:IsSlotShown() and L.TipHideBag or L.TipShowBag)
 	end
 
+	if self:CanIgnoreSlot() then
+		GameTooltip:AddLine(self:IsSlotIgnored() and L.TipSortBag or L.TipIgnoreBag)
+	end
+
 	GameTooltip:Show()
 end
 
@@ -316,6 +337,7 @@ function Bag:Update()
 	self:UpdateSlotInfo()
 	self:UpdateCursor()
 	self:UpdateShown()
+	self:UpdateIgnored()
 end
 
 function Bag:UpdateLock()
@@ -419,6 +441,28 @@ end
 
 function Bag:CanToggleSlot()
 	return self:IsBank() or self:IsBackpack() or self:IsKeyRing() or (self:IsBagSlot() and self.hasItem)
+end
+
+
+--sorting exclusion
+function Bag:ToggleIgnoreSlot()
+	self:GetSettings():ToggleBagSlotIgnored(self:GetID())
+end
+
+function Bag:UpdateIgnored()
+	if self:IsSlotIgnored() then
+		self.ignoredOverlay:Show()
+	else
+		self.ignoredOverlay:Hide()
+	end
+end
+
+function Bag:IsSlotIgnored()
+	return self:CanIgnoreSlot() and self:GetSettings():IsBagSlotIgnored(self:GetID())
+end
+
+function Bag:CanIgnoreSlot()
+	return self:CanToggleSlot()
 end
 
 

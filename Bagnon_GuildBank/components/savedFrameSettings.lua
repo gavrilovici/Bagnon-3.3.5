@@ -32,6 +32,9 @@ function SavedFrameSettings:GetDefaultGuildBankSettings()
 
 		--dbo display object
 		dataBrokerObject = 'BagnonLauncher',
+
+		--slot ordering
+		reverseSlotOrder = false,
 	}
 
 	SavedFrameSettings.guildBankDefaults = defaults
