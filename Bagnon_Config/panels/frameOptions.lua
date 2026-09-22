@@ -263,7 +263,6 @@ function FrameOptions:UpdateWidgets()
 	self:GetSortButtonCheckbox():UpdateChecked()
 	
 	self:GetReverseSlotOrderCheckbox():UpdateChecked()
-	self:GetReverseSlotOrderCheckbox():SetDisabled(self:GetFrameID() == 'guildbank')
 	
 	self:GetBagBreakCheckbox():UpdateChecked()
 	self:GetBagBreakCheckbox():SetDisabled(self:GetFrameID() == 'keys' or self:GetFrameID() == 'guildbank')

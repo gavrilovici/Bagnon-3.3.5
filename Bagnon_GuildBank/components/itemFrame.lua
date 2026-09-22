@@ -253,3 +253,58 @@ end
 function ItemFrame:GetCurrentTabSize()
 	return 98
 end
+
+--[[ Sorting Interface ]]--
+
+--the guild bank is one flat container rather than a set of bags, so the sorter
+--is handed a single pseudo bag: whichever tab is currently being viewed
+local function currentTabIterator(obj, i)
+	if i < 1 then
+		return 1, obj:GetCurrentTab()
+	end
+end
+
+function ItemFrame:GetSortableBags()
+	return currentTabIterator, self, 0
+end
+
+--sorting shuffles items around inside a tab, which needs both view and deposit rights
+function ItemFrame:CanSortItems()
+	local tab = self:GetCurrentTab()
+	if tab < 1 then
+		return false
+	end
+
+	local name, icon, isViewable, canDeposit = GetGuildBankTabInfo(tab)
+	return (isViewable and canDeposit) and true or false
+end
+
+function ItemFrame:IsSortOrderReversed()
+	return self:GetSettings():IsSlotOrderReversed()
+end
+
+function ItemFrame:GetSortBagSize(tab)
+	return self:GetCurrentTabSize()
+end
+
+--guild bank tabs take anything, so every slot belongs to the generic family
+function ItemFrame:GetSortBagFamily(tab)
+	return 0
+end
+
+function ItemFrame:GetSortSlotInfo(tab, slot)
+	local texture, count, locked = GetGuildBankItemInfo(tab, slot)
+	local link = GetGuildBankItemLink(tab, slot)
+
+	--the guild bank api reports no quality, the sorter falls back to the item's own
+	return texture, count, locked, nil, link
+end
+
+function ItemFrame:PickupSortItem(tab, slot)
+	PickupGuildBankItem(tab, slot)
+end
+
+--every guild bank move is a server round trip, so pace the passes further apart
+function ItemFrame:GetSortDelay()
+	return 0.3
+end

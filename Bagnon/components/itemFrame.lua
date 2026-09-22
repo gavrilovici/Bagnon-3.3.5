@@ -481,6 +481,51 @@ function ItemFrame:GetVisibleBags()
 	return self:GetSettings():GetVisibleBagSlots()
 end
 
+--[[ Sorting Interface ]]--
+
+--the sorter talks to item frames only through the methods below, so container
+--types with a different shape (the guild bank) can supply their own versions
+
+function ItemFrame:CanSortItems()
+	return not self:IsCached()
+end
+
+--bags the sorter is allowed to touch, in the order it should fill them
+function ItemFrame:GetSortableBags()
+	return self:GetSettings():GetSortableBagSlots()
+end
+
+function ItemFrame:IsSortOrderReversed()
+	return self:GetSettings():IsSlotOrderReversed()
+end
+
+function ItemFrame:GetSortBagSize(bag)
+	return self:GetBagSize(bag)
+end
+
+function ItemFrame:GetSortBagFamily(bag)
+	return Bagnon.BagSlotInfo:GetBagType(self:GetPlayer(), bag)
+end
+
+function ItemFrame:GetSortSlotInfo(bag, slot)
+	local itemSlot = self:GetItemSlot(bag, slot)
+	if not itemSlot then
+		return
+	end
+
+	local texture, count, locked, quality, readable, lootable, link = itemSlot:GetItemSlotInfo()
+	return texture, count, locked, quality, link
+end
+
+function ItemFrame:PickupSortItem(bag, slot)
+	PickupContainerItem(bag, slot)
+end
+
+--how long to wait between sorting passes
+function ItemFrame:GetSortDelay()
+	return 0.1
+end
+
 function ItemFrame:HasBankBags()
 	for _, bag in self:GetVisibleBags() do
 		if Bagnon.BagSlotInfo:IsBank(bag) or Bagnon.BagSlotInfo:IsBankBag(bag) then

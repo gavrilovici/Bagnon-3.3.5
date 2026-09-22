@@ -418,21 +418,30 @@ function FrameSettings:IsBagSlotHidden(slot)
 end
 
 
---[[ Bag Slot Iterators ]]--
+--[[ Bag Slot Sort Exclusion ]]--
 
---returns an iterator for all bag slots that are available to this frame and marked as visible
-local function reverseVisibleSlotIterator(obj, i)
-	local bagSlots = obj:GetDB():GetBags()
-	local nextSlot = i - 1
-
-	for j = nextSlot, 1, -1 do
-		local slot = bagSlots[j]
-		if not obj:IsBagSlotHidden(slot) then
-			return j, slot
-		end
+--ignored bags stay visible, but the item sorter never reads from or writes to them
+function FrameSettings:SetBagSlotIgnored(slot, ignore)
+	local ignore = ignore and true or false
+	if self:IsBagSlotIgnored(slot) ~= ignore then
+		self:GetDB():SetBagIgnored(slot, ignore)
+		self:SendMessage('BAG_SLOT_IGNORE_UPDATE', slot, ignore)
 	end
 end
 
+function FrameSettings:ToggleBagSlotIgnored(slot)
+	self:SetBagSlotIgnored(slot, not self:IsBagSlotIgnored(slot))
+end
+
+function FrameSettings:IsBagSlotIgnored(slot)
+	return self:GetDB():IsBagIgnored(slot)
+end
+
+
+--[[ Bag Slot Iterators ]]--
+
+--returns an iterator for all bag slots that are available to this frame and marked as visible
+--display order is always front to back: reversing only affects where the sorter places items
 local function visibleSlotIterator(obj, i)
 	local bagSlots = obj:GetDB():GetBags()
 	local nextSlot = i + 1
@@ -446,11 +455,44 @@ local function visibleSlotIterator(obj, i)
 end
 
 function FrameSettings:GetVisibleBagSlots()
+	return visibleSlotIterator, self, 0
+end
+
+
+--[[ Sortable Bag Slot Iterators ]]--
+
+--same as the visible slot iterators, but skips bags the user excluded from sorting
+--and walks back to front when reverse slot ordering is on
+local function reverseSortableSlotIterator(obj, i)
+	local bagSlots = obj:GetDB():GetBags()
+	local nextSlot = i - 1
+
+	for j = nextSlot, 1, -1 do
+		local slot = bagSlots[j]
+		if not obj:IsBagSlotHidden(slot) and not obj:IsBagSlotIgnored(slot) then
+			return j, slot
+		end
+	end
+end
+
+local function sortableSlotIterator(obj, i)
+	local bagSlots = obj:GetDB():GetBags()
+	local nextSlot = i + 1
+
+	for j = nextSlot, #bagSlots do
+		local slot = bagSlots[j]
+		if not obj:IsBagSlotHidden(slot) and not obj:IsBagSlotIgnored(slot) then
+			return j, slot
+		end
+	end
+end
+
+function FrameSettings:GetSortableBagSlots()
 	if self:IsSlotOrderReversed() then
 		local bagSlots = self:GetDB():GetBags()
-		return reverseVisibleSlotIterator, self, #bagSlots + 1
+		return reverseSortableSlotIterator, self, #bagSlots + 1
 	end
-	return visibleSlotIterator, self, 0
+	return sortableSlotIterator, self, 0
 end
 
 
