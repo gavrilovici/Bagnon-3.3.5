@@ -144,7 +144,7 @@ function SavedSettings:GetDBVersion()
 end
 
 function SavedSettings:GetAddOnVersion()
-	return GetAddOnMetadata('Bagnon', 'Version')
+	return GetAddOnMetadata('Bagnon-3.3.5', 'Version')
 end
 
 

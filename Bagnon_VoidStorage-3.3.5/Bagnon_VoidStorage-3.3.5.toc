@@ -2,7 +2,7 @@
 ## Title: Bagnon Void Storage
 ## Author: Jaliborc (João Cardoso)
 ## Notes: Single window display for your void storage
-## RequiredDeps: Bagnon
+## RequiredDeps: Bagnon-3.3.5
 ## LoadOnDemand: 1
 ## Version: 6.2.4
 

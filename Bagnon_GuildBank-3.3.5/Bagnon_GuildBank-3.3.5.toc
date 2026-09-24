@@ -3,7 +3,7 @@
 ## Author: Tuller
 ## Notes: Single window display for your guild bank
 ## Version: 1.0.0
-## RequiredDeps: Bagnon
+## RequiredDeps: Bagnon-3.3.5
 ## LoadOnDemand: 1
 ## DefaultState: disabled 
 main.lua

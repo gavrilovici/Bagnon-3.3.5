@@ -892,7 +892,7 @@ function Frame:PlaceOptionsToggle()
 end
 
 function Frame:HasOptionsToggle()
-	local name, title, notes, enabled = GetAddOnInfo('Bagnon_Config')
+	local name, title, notes, enabled = GetAddOnInfo('Bagnon_Config-3.3.5')
 	return enabled and self:GetSettings():HasOptionsToggle()
 end
 
