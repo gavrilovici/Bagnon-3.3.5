@@ -2,7 +2,7 @@
 ## Title: Bagnon Config
 ## Notes: GUI based configuration for Bagnon
 ## Author: Tuller
-## Dependencies: Bagnon
+## Dependencies: Bagnon-3.3.5
 ## LoadOnDemand: 1
 localization.xml
 widgets.xml

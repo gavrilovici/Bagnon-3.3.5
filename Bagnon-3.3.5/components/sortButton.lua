@@ -45,7 +45,7 @@ function SortButton:New(frameID, parent)
 
 	local icon = b:CreateTexture()
 	icon:SetAllPoints(b)
-	icon:SetTexture([[Interface\AddOns\Bagnon\textures\Broom]])
+	icon:SetTexture([[Interface\AddOns\Bagnon-3.3.5\textures\Broom]])
 
 	b:SetScript('OnClick', b.OnClick)
 	b:SetScript('OnEnter', b.OnEnter)

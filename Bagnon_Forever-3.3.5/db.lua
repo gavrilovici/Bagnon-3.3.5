@@ -5,7 +5,7 @@
 
 BagnonDB = CreateFrame('GameTooltip', 'BagnonDB', nil, 'GameTooltipTemplate')
 BagnonDB:SetScript('OnEvent', function(self, event, arg1)
-	if arg1 == 'Bagnon_Forever' then
+	if arg1 == 'Bagnon_Forever-3.3.5' then
 		self:UnregisterEvent('ADDON_LOADED')
 		self:Initialize()
 	end
@@ -14,7 +14,7 @@ BagnonDB:RegisterEvent('ADDON_LOADED')
 
 --constants
 local L = BAGNON_FOREVER_LOCALS
-local CURRENT_VERSION = GetAddOnMetadata('Bagnon_Forever', 'Version')
+local CURRENT_VERSION = GetAddOnMetadata('Bagnon_Forever-3.3.5', 'Version')
 local NUM_EQUIPMENT_SLOTS = 19
 
 --locals

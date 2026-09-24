@@ -74,7 +74,7 @@ end
 
 function TitleFrame:OnClick(button)
 	if button == 'RightButton' then
-		if LoadAddOn('Bagnon_Config') then
+		if LoadAddOn('Bagnon_Config-3.3.5') then
 			Bagnon.FrameOptions:ShowFrame(self:GetFrameID())
 		end
 	end

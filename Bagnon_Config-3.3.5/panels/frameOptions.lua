@@ -281,7 +281,7 @@ function FrameOptions:CreateFrameSelector()
 	self:AddItem(L.Bank, 'bank')
 	self:AddItem(L.KeyRing, 'keys')
 		
-		if IsAddOnLoaded('Bagnon_GuildBank') then
+		if IsAddOnLoaded('Bagnon_GuildBank-3.3.5') then
 			self:AddItem(L.GuildBank, 'guildbank')
 		end
 	end

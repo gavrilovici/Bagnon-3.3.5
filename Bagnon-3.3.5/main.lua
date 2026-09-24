@@ -37,15 +37,15 @@ function Bagnon:CreateOptionsLoader()
 	local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
 	f:SetScript('OnShow', function(self)
 		self:SetScript('OnShow', nil)
-		LoadAddOn('Bagnon_Config')
+		LoadAddOn('Bagnon_Config-3.3.5')
 	end)
 end
 
 function Bagnon:CreateGuildBankLoader()
-	local name, title, notes, enabled, loadable = GetAddOnInfo('Bagnon_GuildBank')
+	local name, title, notes, enabled, loadable = GetAddOnInfo('Bagnon_GuildBank-3.3.5')
 	if enabled and loadable then
 		GuildBankFrame_LoadUI = function()
-			LoadAddOn('Bagnon_GuildBank') 
+			LoadAddOn('Bagnon_GuildBank-3.3.5') 
 		end
 	end
 end
@@ -400,7 +400,7 @@ function Bagnon:PrintHelp()
 end
 
 function Bagnon:ShowOptions()
-	if LoadAddOn('Bagnon_Config') then
+	if LoadAddOn('Bagnon_Config-3.3.5') then
 		InterfaceOptionsFrame_OpenToCategory(self.GeneralOptions)
 		return true
 	end

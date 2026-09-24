@@ -158,7 +158,7 @@ function SavedFrameSettings:GetDBVersion()
 end
 
 function SavedFrameSettings:GetAddOnVersion()
-	return GetAddOnMetadata('Bagnon', 'Version')
+	return GetAddOnMetadata('Bagnon-3.3.5', 'Version')
 end
 
 function SavedFrameSettings:ClearDefaults()

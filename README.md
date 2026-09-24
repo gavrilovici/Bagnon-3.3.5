@@ -12,15 +12,19 @@ Copy the addon folders into `World of Warcraft/Interface/AddOns/`:
 
 | Folder | Purpose |
 | --- | --- |
-| `Bagnon` | Core addon — inventory, bank and keyring frames (required) |
-| `Bagnon_Config` | In-game options panels |
-| `Bagnon_Forever` | Offline/cached item data for your other characters |
-| `Bagnon_GuildBank` | Guild bank frame |
-| `Bagnon_Tooltips` | Adds owned-item counts to tooltips |
-| `Bagnon_VoidStorage` | Void storage frame |
+| `Bagnon-3.3.5` | Core addon — inventory, bank and keyring frames (required) |
+| `Bagnon_Config-3.3.5` | In-game options panels |
+| `Bagnon_Forever-3.3.5` | Offline/cached item data for your other characters |
+| `Bagnon_GuildBank-3.3.5` | Guild bank frame |
+| `Bagnon_Tooltips-3.3.5` | Adds owned-item counts to tooltips |
+| `Bagnon_VoidStorage-3.3.5` | Void storage frame |
 
-Ace3, LibDataBroker-1.1 and LibItemSearch-1.0 are embedded in `Bagnon/libs`, so there is nothing
-else to install.
+Ace3, LibDataBroker-1.1 and LibItemSearch-1.0 are embedded in `Bagnon-3.3.5/libs`, so there is
+nothing else to install.
+
+The folders carry a `-3.3.5` suffix so they can't be confused with (or overwritten by) retail
+Bagnon. Remove any old `Bagnon*` folders without the suffix before installing, or both copies
+will load.
 
 ## What this fork changes
 
@@ -33,7 +37,7 @@ retargeted to `## Interface: 30300`.
 
 ### Sorting rework
 
-The client-side sorter (`Bagnon/utility/sorting.lua`) was largely rewritten:
+The client-side sorter (`Bagnon-3.3.5/utility/sorting.lua`) was largely rewritten:
 
 * **Sort direction is now an option.** "Reverse sort order" in the frame options controls which
   end of your bags a sort fills from. Previously the reversed ordering was hardcoded.
