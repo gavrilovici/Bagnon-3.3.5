@@ -523,7 +523,7 @@ end
 
 --how long to wait between sorting passes
 function ItemFrame:GetSortDelay()
-	return 0.1
+	return 0.2
 end
 
 function ItemFrame:HasBankBags()
